@@ -21,7 +21,19 @@ type DServer struct {
 	mcpServer *server.MCPServer
 }
 
-func InitDServer(debug bool, LogFile string, configFile string, mongoDBURI string, mongoDBDatabase string) *DServer {
+type DBType string
+
+const (
+	DBTypeMongoDB DBType = "mongodb"
+)
+
+type DBInfo struct {
+	Type     DBType
+	URI      string
+	Database string
+}
+
+func InitDServer(debug bool, LogFile string, configFile string, dbInfo DBInfo, mcpType string, mcpPort int) *DServer {
 
 	var logLevel int
 	if debug {
@@ -44,12 +56,13 @@ func InitDServer(debug bool, LogFile string, configFile string, mongoDBURI strin
 		log.Fatalf("Failed to read config file: %v", err)
 	}
 
-	//init monog
-	err = common.InitMongoDB(mongoDBDatabase, mongoDBURI)
-	if err != nil {
-		logx.Fatalf("Failed to init mongodb: %v", err)
+	//init monogo
+	if dbInfo.Type == "mongodb" {
+		err = common.InitMongoDB(dbInfo.Database, dbInfo.URI)
+		if err != nil {
+			logx.Fatalf("Failed to init mongodb: %v", err)
+		}
 	}
-	logx.Infof("config file loaded: %v", viper.ConfigFileUsed())
 
 	ds := &DServer{
 		msgChan: make(chan Message),
