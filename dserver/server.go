@@ -60,8 +60,8 @@ func InitDServer(debug bool, LogFile string, dbInfo DBInfo) *DServer {
 
 	//init dserver
 	ds := &DServer{
-		msgChan: make(chan Message),
-		mcpServer: server.NewMCPServer("Pentest Workflow Server", "1.0.0",
+		MsgChan: make(chan Message),
+		MCPServer: server.NewMCPServer("Pentest Workflow Server", "1.0.0",
 			server.WithToolCapabilities(true),
 			server.WithResourceCapabilities(true, true),
 			server.WithRecovery(),
@@ -77,7 +77,7 @@ func (ds *DServer) Start(mcpType string, mcpPort int) {
 	//start sse server
 	if mcpType == "sse" {
 		logx.Infof("Starting SSE server on :%d", mcpPort)
-		sseServer := server.NewSSEServer(ds.mcpServer,
+		sseServer := server.NewSSEServer(ds.MCPServer,
 			server.WithSSEContextFunc(func(ctx context.Context, r *http.Request) context.Context {
 				// Add custom context values from headers
 				return ctx
@@ -89,7 +89,7 @@ func (ds *DServer) Start(mcpType string, mcpPort int) {
 }
 
 func (ds *DServer) handleMessage() {
-	for msg := range ds.msgChan {
+	for msg := range ds.MsgChan {
 		//send to mcpHost
 		if msg.msgType == "log" {
 			// Convert map[string]string to map[string]any
@@ -97,7 +97,7 @@ func (ds *DServer) handleMessage() {
 			for k, v := range msg.msg {
 				msgMap[k] = v
 			}
-			ds.mcpServer.SendNotificationToClient(context.Background(), "notifications/command", msgMap)
+			ds.MCPServer.SendNotificationToClient(context.Background(), "notifications/command", msgMap)
 		}
 	}
 }
