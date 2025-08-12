@@ -2,7 +2,9 @@ package dserver
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/colin-404/logx"
 	"github.com/mark3labs/mcp-go/server"
@@ -33,7 +35,7 @@ type DBInfo struct {
 	Database string
 }
 
-func InitDServer(debug bool, LogFile string, configFile string, dbInfo DBInfo, mcpType string, mcpPort int) *DServer {
+func InitDServer(debug bool, LogFile string, configFile string, dbInfo DBInfo) *DServer {
 
 	var logLevel int
 	if debug {
@@ -76,6 +78,21 @@ func InitDServer(debug bool, LogFile string, configFile string, dbInfo DBInfo, m
 	go ds.handleMessage()
 
 	return ds
+}
+
+func (ds *DServer) Start(mcpType string, mcpPort int) {
+	//start sse server
+	if mcpType == "sse" {
+		logx.Infof("Starting SSE server on :%d", mcpPort)
+		sseServer := server.NewSSEServer(ds.mcpServer,
+			server.WithSSEContextFunc(func(ctx context.Context, r *http.Request) context.Context {
+				// Add custom context values from headers
+				return ctx
+			}))
+		if err := sseServer.Start(fmt.Sprintf(":%d", mcpPort)); err != nil {
+			log.Fatal(err)
+		}
+	}
 }
 
 func (ds *DServer) handleMessage() {
