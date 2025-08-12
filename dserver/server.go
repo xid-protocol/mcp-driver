@@ -8,7 +8,6 @@ import (
 
 	"github.com/colin-404/logx"
 	"github.com/mark3labs/mcp-go/server"
-	"github.com/spf13/viper"
 	"github.com/xid-protocol/common"
 )
 
@@ -35,7 +34,7 @@ type DBInfo struct {
 	Database string
 }
 
-func InitDServer(debug bool, LogFile string, configFile string, dbInfo DBInfo) *DServer {
+func InitDServer(debug bool, LogFile string, dbInfo DBInfo) *DServer {
 
 	var logLevel int
 	if debug {
@@ -51,21 +50,15 @@ func InitDServer(debug bool, LogFile string, configFile string, dbInfo DBInfo) *
 	loger := logx.NewLoger(logOpts)
 	logx.InitLogger(loger)
 
-	//load config
-	viper.SetConfigFile(configFile)
-	err := viper.ReadInConfig()
-	if err != nil {
-		log.Fatalf("Failed to read config file: %v", err)
-	}
-
 	//init monogo
-	if dbInfo.Type == "mongodb" {
-		err = common.InitMongoDB(dbInfo.Database, dbInfo.URI)
+	if dbInfo.Type == DBTypeMongoDB {
+		err := common.InitMongoDB(dbInfo.Database, dbInfo.URI)
 		if err != nil {
 			logx.Fatalf("Failed to init mongodb: %v", err)
 		}
 	}
 
+	//init dserver
 	ds := &DServer{
 		msgChan: make(chan Message),
 		mcpServer: server.NewMCPServer("Pentest Workflow Server", "1.0.0",
