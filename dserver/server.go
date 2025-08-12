@@ -18,8 +18,8 @@ type Message struct {
 
 // driver server
 type DServer struct {
-	msgChan   chan Message
-	mcpServer *server.MCPServer
+	MsgChan   chan Message
+	MCPServer *server.MCPServer
 }
 
 type DBType string
