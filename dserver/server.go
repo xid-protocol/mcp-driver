@@ -12,14 +12,14 @@ import (
 	"github.com/xid-protocol/common"
 )
 
-type Message struct {
-	msg     map[string]string
-	msgType string
-}
+// type Message struct {
+// 	msg     map[string]string
+// 	msgType string
+// }
 
 // driver server
 type DServer struct {
-	MsgChan   chan Message
+	eventChan chan any
 	MCPServer *server.MCPServer
 }
 
@@ -61,7 +61,7 @@ func InitDServer(debug bool, LogFile string, dbInfo DBInfo) *DServer {
 
 	//init dserver
 	ds := &DServer{
-		MsgChan: make(chan Message),
+		eventChan: make(chan any, 100),
 		MCPServer: server.NewMCPServer("Pentest Workflow Server", "1.0.0",
 			server.WithToolCapabilities(true),
 			server.WithResourceCapabilities(true, true),
@@ -69,7 +69,7 @@ func InitDServer(debug bool, LogFile string, dbInfo DBInfo) *DServer {
 		),
 	}
 
-	go ds.handleMessage()
+	go ds.HandleEvent()
 
 	return ds
 }
@@ -98,17 +98,13 @@ func (ds *DServer) Start(transport string, mcpPort int) {
 	}
 }
 
-func (ds *DServer) handleMessage() {
-	for msg := range ds.MsgChan {
+func (ds *DServer) HandleEvent() {
+	for event := range ds.eventChan {
 		//send to mcpHost
-		if msg.msgType == "log" {
-			// Convert map[string]string to map[string]any
-			msgMap := make(map[string]any)
-			for k, v := range msg.msg {
-				msgMap[k] = v
-			}
-			ds.MCPServer.SendNotificationToClient(context.Background(), "notifications/command", msgMap)
-		}
+		ds.MCPServer.SendNotificationToClient(context.Background(), "event", map[string]any{
+			"event": event,
+		})
+
 	}
 }
 
