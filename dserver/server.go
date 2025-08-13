@@ -19,7 +19,7 @@ import (
 
 // driver server
 type DServer struct {
-	eventChan chan any
+	EventChan chan any
 	MCPServer *server.MCPServer
 }
 
@@ -61,7 +61,7 @@ func InitDServer(debug bool, LogFile string, dbInfo DBInfo) *DServer {
 
 	//init dserver
 	ds := &DServer{
-		eventChan: make(chan any, 100),
+		EventChan: make(chan any, 100),
 		MCPServer: server.NewMCPServer("Pentest Workflow Server", "1.0.0",
 			server.WithToolCapabilities(true),
 			server.WithResourceCapabilities(true, true),
@@ -99,7 +99,7 @@ func (ds *DServer) Start(transport string, mcpPort int) {
 }
 
 func (ds *DServer) HandleEvent() {
-	for event := range ds.eventChan {
+	for event := range ds.EventChan {
 		//send to mcpHost
 		ds.MCPServer.SendNotificationToClient(context.Background(), "event", map[string]any{
 			"event": event,
