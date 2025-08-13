@@ -98,11 +98,11 @@ func (ds *DServer) Start(transport string, mcpPort int) {
 	}
 }
 
-func (ds *DServer) HandleEvent() {
+func (ds *DServer) HandleEvent(eventType string) {
 	for event := range ds.EventChan {
 		//send to mcpHost
-		ds.MCPServer.SendNotificationToClient(context.Background(), "event", map[string]any{
-			"event": event,
+		ds.MCPServer.SendNotificationToClient(context.Background(), eventType, map[string]any{
+			eventType: event,
 		})
 
 	}
