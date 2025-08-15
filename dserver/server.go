@@ -2,7 +2,6 @@ package dserver
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -74,25 +73,25 @@ func InitDServer(debug bool, LogFile string, dbInfo DBInfo) *DServer {
 	return ds
 }
 
-func (ds *DServer) Start(transport string, mcpPort int) {
+func (ds *DServer) Start(transport string, address string) {
 	//start sse server
 	if transport == "sse" {
-		logx.Infof("Starting SSE server on :%d", mcpPort)
+		logx.Infof("Starting SSE server on :%s", address)
 		sseServer := server.NewSSEServer(ds.MCPServer,
 			server.WithSSEContextFunc(func(ctx context.Context, r *http.Request) context.Context {
 				// Add custom context values from headers
 				return ctx
 			}))
-		if err := sseServer.Start(fmt.Sprintf(":%d", mcpPort)); err != nil {
+		if err := sseServer.Start(address); err != nil {
 			log.Fatal(err)
 		}
 	}
 
 	//start streamable http server
 	if transport == "http" {
-		logx.Infof("Starting Streamable HTTP server on :%d", mcpPort)
+		logx.Infof("Starting Streamable HTTP server on :%s", address)
 		httpServer := server.NewStreamableHTTPServer(ds.MCPServer)
-		if err := httpServer.Start(fmt.Sprintf(":%d", mcpPort)); err != nil {
+		if err := httpServer.Start(address); err != nil {
 			log.Fatal(err)
 		}
 	}
