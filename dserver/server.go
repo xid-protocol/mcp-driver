@@ -53,7 +53,7 @@ func InitDServer(debug bool, LogFile string, dbInfo DBInfo) *DServer {
 
 	//init monogo
 	if dbInfo.Type == DBTypeMongoDB {
-		err := common.InitMongoDB(dbInfo.Database, dbInfo.URI)
+		err := common.InitMongoDB(dbInfo.Database, dbInfo.URI, true)
 		if err != nil {
 			logx.Fatalf("Failed to init mongodb: %v", err)
 		}

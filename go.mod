@@ -5,8 +5,7 @@ go 1.24.4
 require (
 	github.com/colin-404/logx v0.1.2
 	github.com/mark3labs/mcp-go v0.37.0
-	github.com/xid-protocol/common v0.0.2
-	github.com/xid-protocol/xidp v0.1.42
+	github.com/xid-protocol/common v0.1.0
 )
 
 require (
