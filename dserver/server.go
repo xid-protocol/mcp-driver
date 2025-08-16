@@ -75,7 +75,7 @@ func InitDServer(debug bool, LogFile string, dbInfo DBInfo) *DServer {
 
 func (ds *DServer) Start(transport string, address string) {
 	//start sse server
-	if transport == "sse" {
+	if transport == "SSE" {
 		logx.Infof("Starting SSE server on :%s", address)
 		sseServer := server.NewSSEServer(ds.MCPServer,
 			server.WithSSEContextFunc(func(ctx context.Context, r *http.Request) context.Context {
@@ -88,7 +88,7 @@ func (ds *DServer) Start(transport string, address string) {
 	}
 
 	//start streamable http server
-	if transport == "http" {
+	if transport == "HTTP" {
 		logx.Infof("Starting Streamable HTTP server on :%s", address)
 		httpServer := server.NewStreamableHTTPServer(ds.MCPServer)
 		if err := httpServer.Start(address); err != nil {
