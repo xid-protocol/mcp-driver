@@ -22,6 +22,14 @@ type DServer struct {
 	MCPServer *server.MCPServer
 }
 
+type Transport string
+
+const (
+	TransportSSE   Transport = "SSE"
+	TransportHTTP  Transport = "HTTP"
+	TransportSTDIO Transport = "STDIO"
+)
+
 type DBType string
 
 const (
@@ -73,9 +81,9 @@ func InitDServer(debug bool, LogFile string, dbInfo DBInfo) *DServer {
 	return ds
 }
 
-func (ds *DServer) Start(transport string, address string) {
+func (ds *DServer) Start(transport Transport, address string) {
 	//start sse server
-	if transport == "SSE" {
+	if transport == TransportSSE {
 		logx.Infof("Starting SSE server on :%s", address)
 		sseServer := server.NewSSEServer(ds.MCPServer,
 			server.WithSSEContextFunc(func(ctx context.Context, r *http.Request) context.Context {
@@ -88,7 +96,7 @@ func (ds *DServer) Start(transport string, address string) {
 	}
 
 	//start streamable http server
-	if transport == "HTTP" {
+	if transport == TransportHTTP {
 		logx.Infof("Starting Streamable HTTP server on :%s", address)
 		httpServer := server.NewStreamableHTTPServer(ds.MCPServer)
 		if err := httpServer.Start(address); err != nil {
@@ -96,7 +104,7 @@ func (ds *DServer) Start(transport string, address string) {
 		}
 	}
 
-	if transport == "STDIO" {
+	if transport == TransportSTDIO {
 		logx.Infof("Starting STDIO server on :%s", address)
 		err := server.ServeStdio(ds.MCPServer)
 		if err != nil {
