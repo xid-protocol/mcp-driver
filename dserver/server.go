@@ -95,6 +95,15 @@ func (ds *DServer) Start(transport string, address string) {
 			log.Fatal(err)
 		}
 	}
+
+	if transport == "STDIO" {
+		logx.Infof("Starting STDIO server on :%s", address)
+		err := server.ServeStdio(ds.MCPServer)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 }
 
 func (ds *DServer) HandleEvent() {
