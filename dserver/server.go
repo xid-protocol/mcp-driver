@@ -100,7 +100,10 @@ func (ds *DServer) Start(transport string, address string) {
 func (ds *DServer) HandleEvent() {
 	for event := range ds.EventChan {
 		logx.Debugf("handle event: %v", event)
-		ds.MCPServer.SendNotificationToClient(context.Background(), "event", event)
+		err := ds.MCPServer.SendNotificationToClient(context.Background(), "event", event)
+		if err != nil {
+			logx.Errorf("Failed to send notification to client: %v", err)
+		}
 	}
 }
 
