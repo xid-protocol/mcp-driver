@@ -11,14 +11,14 @@ import (
 	"github.com/xid-protocol/common"
 )
 
-// type Message struct {
-// 	msg     map[string]string
-// 	msgType string
-// }
+type Event struct {
+	CTX     context.Context
+	Payload map[string]any
+}
 
 // driver server
 type DServer struct {
-	EventChan chan map[string]any
+	EventChan chan Event
 	MCPServer *server.MCPServer
 }
 
@@ -60,7 +60,7 @@ func InitDServer(debug bool, LogFile string, dbInfo DBInfo) *DServer {
 
 	//init dserver
 	ds := &DServer{
-		EventChan: make(chan map[string]any, 100),
+		EventChan: make(chan Event, 100),
 		MCPServer: server.NewMCPServer("Pentest Workflow Server", "1.0.0",
 			server.WithToolCapabilities(true),
 			server.WithResourceCapabilities(true, true),
@@ -100,7 +100,7 @@ func (ds *DServer) Start(transport string, address string) {
 func (ds *DServer) HandleEvent() {
 	for event := range ds.EventChan {
 		logx.Debugf("handle event: %v", event)
-		err := ds.MCPServer.SendNotificationToClient(context.Background(), "event", event)
+		err := ds.MCPServer.SendNotificationToClient(event.CTX, "event", event.Payload)
 		if err != nil {
 			logx.Errorf("Failed to send notification to client: %v", err)
 		}
