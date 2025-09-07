@@ -1,0 +1,22 @@
+# 主要入口 - 前端 + API代理
+:80 {
+    # 健康检查
+    handle /health {
+        respond "OK" 200
+    }
+  
+    handle /api/* {
+        reverse_proxy 127.0.0.1:8080
+    }
+    # 其他请求代理到前端
+    handle {
+        reverse_proxy 127.0.0.1:3000
+    }
+    
+    # 启用压缩和日志
+    encode gzip
+    log {
+        output stdout
+        format console
+    }
+}
