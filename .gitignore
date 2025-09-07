@@ -3,3 +3,6 @@ logs
 tmp
 data
 test
+.venv
+node_modules/
+.next/
